@@ -25,6 +25,9 @@
 package me.blvckbytes.bukkitcommands;
 
 import me.blvckbytes.bukkitcommands.error.*;
+import net.kyori.adventure.text.format.Style;
+import net.kyori.adventure.text.format.TextDecoration;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
@@ -50,7 +53,10 @@ public abstract class BukkitCommand extends Command {
   protected final ICommandConfigProvider configProvider;
   protected final Logger logger;
 
-  protected BukkitCommand(ICommandConfigProvider configProvider, Logger logger) {
+  protected BukkitCommand(
+		final ICommandConfigProvider configProvider,
+		final Logger logger
+	) {
     super(
       configProvider.getName(),
       configProvider.getDescription(),
@@ -66,17 +72,29 @@ public abstract class BukkitCommand extends Command {
   //                            Abstract Handlers                            //
   //=========================================================================//
 
-  protected abstract void onInvocation(CommandSender sender, String alias, String[] args);
+  protected abstract void onInvocation(
+		final CommandSender sender,
+		final String alias,
+		final String[] args
+	);
 
-  protected abstract List<String> onTabComplete(CommandSender sender, String alias, String[] args);
+  protected abstract List<String> onTabComplete(
+		final CommandSender sender,
+		final String alias,
+		final String[] args
+	);
 
   //=========================================================================//
   //                             Bukkit Handlers                             //
   //=========================================================================//
 
   @Override
-  public boolean execute(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) {
-    return executeAndHandleCommandErrors(() -> {
+  public boolean execute(
+		final @NotNull CommandSender sender,
+		final @NotNull String alias,
+		final @NotNull String[] args
+	) {
+    return this.executeAndHandleCommandErrors(() -> {
       onInvocation(sender, alias, args);
       return true;
     }, false, sender, alias, args);
@@ -84,8 +102,12 @@ public abstract class BukkitCommand extends Command {
 
   @NotNull
   @Override
-  public List<String> tabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException {
-    return executeAndHandleCommandErrors(() -> onTabComplete(sender, alias, args), EMPTY_STRING_LIST, sender, alias, args);
+  public List<String> tabComplete(
+		final @NotNull CommandSender sender,
+		final @NotNull String alias,
+		final @NotNull String[] args
+	) throws IllegalArgumentException {
+    return this.executeAndHandleCommandErrors(() -> this.onTabComplete(sender, alias, args), EMPTY_STRING_LIST, sender, alias, args);
   }
 
   //=========================================================================//
@@ -132,6 +154,10 @@ public abstract class BukkitCommand extends Command {
   protected OfflinePlayer offlinePlayerParameterOrElse(String[] args, int argumentIndex, boolean hasToHavePlayed, OfflinePlayer fallback) {
     return invokeIfArgPresentOrElse(() -> offlinePlayerParameter(args, argumentIndex, hasToHavePlayed), fallback);
   }
+
+	protected String stringParameter(String[] args, int argumentIndex) {
+		return this.resolveArgument(args, argumentIndex);
+	}
 
   protected UUID uuidParameter(String[] args, int argumentIndex) {
     try {
@@ -234,42 +260,24 @@ public abstract class BukkitCommand extends Command {
   private void handleError(CommandError error, CommandSender sender, String alias, String[] args) {
     ErrorContext context = new ErrorContext(sender, alias, args, error.argumentIndex);
 
-    String message;
-    switch (error.errorType) {
-      case MALFORMED_DOUBLE:
-        message = configProvider.getMalformedDoubleMessage(context);
-        break;
-      case MALFORMED_FLOAT:
-        message = configProvider.getMalformedFloatMessage(context);
-        break;
-      case MALFORMED_LONG:
-        message = configProvider.getMalformedLongMessage(context);
-        break;
-      case MALFORMED_INTEGER:
-        message = configProvider.getMalformedIntegerMessage(context);
-        break;
-      case MALFORMED_UUID:
-        message = configProvider.getMalformedUuidMessage(context);
-        break;
-      case MALFORMED_ENUM:
-        message = configProvider.getMalformedEnumMessage(context, (EnumInfo) error.parameter);
-        break;
-      case MISSING_ARGUMENT:
-        message = configProvider.getMissingArgumentMessage(context);
-        break;
-      case NOT_A_PLAYER:
-        message = configProvider.getNotAPlayerMessage(context);
-        break;
-      case PLAYER_UNKNOWN:
-        message = configProvider.getPlayerUnknownMessage(context);
-        break;
-      case PLAYER_NOT_ONLINE:
-        message = configProvider.getPlayerNotOnlineMessage(context);
-        break;
-      default:
-        throw new IllegalStateException("Encountered unimplemented error type: " + error.errorType);
-    }
+    String message = switch (error.errorType) {
+			case MALFORMED_DOUBLE -> configProvider.getMalformedDoubleMessage(context);
+			case MALFORMED_FLOAT -> configProvider.getMalformedFloatMessage(context);
+			case MALFORMED_LONG -> configProvider.getMalformedLongMessage(context);
+			case MALFORMED_INTEGER -> configProvider.getMalformedIntegerMessage(context);
+			case MALFORMED_UUID -> configProvider.getMalformedUuidMessage(context);
+			case MALFORMED_ENUM -> configProvider.getMalformedEnumMessage(
+				context,
+				(EnumInfo) error.parameter
+			);
+			case MISSING_ARGUMENT -> configProvider.getMissingArgumentMessage(context);
+			case NOT_A_PLAYER -> configProvider.getNotAPlayerMessage(context);
+			case PLAYER_UNKNOWN -> configProvider.getPlayerUnknownMessage(context);
+			case PLAYER_NOT_ONLINE -> configProvider.getPlayerNotOnlineMessage(context);
+		};
 
-    sender.sendMessage(message);
+		sender.sendMessage(
+			MiniMessage.miniMessage().deserialize(message).decoration(TextDecoration.ITALIC, false)
+		);
   }
 }

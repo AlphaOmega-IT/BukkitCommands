@@ -33,17 +33,28 @@ import java.util.logging.Logger;
 
 public abstract class PlayerCommand extends BukkitCommand {
 
-  protected PlayerCommand(ICommandConfigProvider configProvider, Logger logger) {
+  protected PlayerCommand(
+		final ICommandConfigProvider configProvider,
+		final Logger logger
+	) {
     super(configProvider, logger);
   }
 
-  protected abstract void onPlayerInvocation(Player sender, String alias, String[] args);
+  protected abstract void onPlayerInvocation(
+		final Player sender,
+		final String alias,
+		final String[] args
+	);
 
   @Override
-  protected void onInvocation(CommandSender sender, String alias, String[] args) {
+  protected void onInvocation(
+		final CommandSender sender,
+		final String alias,
+		final String[] args
+	) {
     if (!(sender instanceof Player))
       throw new CommandError(null, EErrorType.NOT_A_PLAYER);
 
-    onPlayerInvocation((Player) sender, alias, args);
+    this.onPlayerInvocation((Player) sender, alias, args);
   }
 }
