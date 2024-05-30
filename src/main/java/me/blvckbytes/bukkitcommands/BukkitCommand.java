@@ -28,6 +28,9 @@ import me.blvckbytes.bukkitcommands.error.*;
 import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.minimessage.ParsingException;
+import net.kyori.adventure.text.minimessage.internal.parser.ParsingExceptionImpl;
+import net.kyori.adventure.text.minimessage.internal.parser.TokenParser;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
@@ -276,8 +279,18 @@ public abstract class BukkitCommand extends Command {
 			case PLAYER_NOT_ONLINE -> configProvider.getPlayerNotOnlineMessage(context);
 		};
 
-		sender.sendMessage(
-			MiniMessage.miniMessage().deserialize(message).decoration(TextDecoration.ITALIC, false)
-		);
+		if (
+			message.contains("§")
+		) sender.sendMessage(message);
+		else
+			sender.sendMessage(
+				MiniMessage
+					.miniMessage()
+					.deserialize(message)
+					.decoration(
+						TextDecoration.ITALIC,
+						false
+					)
+			);
   }
 }
