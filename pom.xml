@@ -29,7 +29,7 @@
         <dependency>
             <groupId>io.papermc.paper</groupId>
             <artifactId>paper-api</artifactId>
-            <version>1.20.6-R0.1-SNAPSHOT</version>
+            <version>1.21-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -44,6 +44,14 @@
 		        <exclusion>
 			        <groupId>com.google.code.gson</groupId>
 			        <artifactId>gson</artifactId>
+		        </exclusion>
+		        <exclusion>
+			        <groupId>org.jetbrains</groupId>
+			        <artifactId>annotations</artifactId>
+		        </exclusion>
+		        <exclusion>
+			        <groupId>net.kyori</groupId>
+			        <artifactId>adventure-text-minimessage</artifactId>
 		        </exclusion>
 	        </exclusions>
         </dependency>
