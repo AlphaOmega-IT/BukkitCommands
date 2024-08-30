@@ -43,6 +43,8 @@ public interface IErrorHandlerConfigProvider {
   String getMissingArgumentMessage(ErrorContext context);
 
   String getNotAPlayerMessage(ErrorContext context);
+  
+  String getNotAConsoleMessage(ErrorContext context);
 
   String getPlayerUnknownMessage(ErrorContext context);
 

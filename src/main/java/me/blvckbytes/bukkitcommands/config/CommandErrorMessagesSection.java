@@ -40,6 +40,7 @@ public class CommandErrorMessagesSection implements IConfigSection {
     malformedUuid,
     malformedEnum,
     notAPlayer,
+    notAConsole,
     playerUnknown,
     playerNotOnline,
     internalError;
@@ -47,7 +48,9 @@ public class CommandErrorMessagesSection implements IConfigSection {
   @Override
   public @Nullable Object defaultFor(Field field) throws Exception {
     if (field.getType() == BukkitEvaluable.class)
-      return BukkitEvaluable.of("§cUnconfigured message");
+      return BukkitEvaluable.of(
+          "<dark_red>ERROR:</dark_red> <red>Unconfigured message for field:</red> <gray>" + field.getName() + "</gray>"
+      );
     return IConfigSection.super.defaultFor(field);
   }
 
@@ -78,6 +81,8 @@ public class CommandErrorMessagesSection implements IConfigSection {
   public BukkitEvaluable getNotAPlayer() {
     return notAPlayer;
   }
+  
+  public BukkitEvaluable getNotAConsole() { return notAConsole; }
 
   public BukkitEvaluable getPlayerUnknown() {
     return playerUnknown;

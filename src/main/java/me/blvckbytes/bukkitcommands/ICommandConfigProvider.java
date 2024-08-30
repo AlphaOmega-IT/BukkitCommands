@@ -29,14 +29,37 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
+/**
+ * Represents a provider for command configuration settings.
+ */
 public interface ICommandConfigProvider extends IErrorHandlerConfigProvider {
-
+  
+  /**
+   * Retrieves the name of the command.
+   *
+   * @return The name of the command.
+   */
   @NotNull String getName();
-
+  
+  /**
+   * Retrieves a list of aliases for the command.
+   *
+   * @return A list of aliases for the command.
+   */
   @NotNull List<String> getAliases();
-
+  
+  /**
+   * Retrieves the description of the command.
+   *
+   * @return The description of the command.
+   */
   @NotNull String getDescription();
-
+  
+  /**
+   * Retrieves the usage information for the command.
+   *
+   * @return The usage information for the command.
+   */
   @NotNull String getUsage();
-
+  
 }

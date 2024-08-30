@@ -26,6 +26,11 @@ package me.blvckbytes.bukkitcommands;
 
 import java.util.List;
 
+/**
+ * Interface for retrieving information about an Enum.
+ * <p>
+ * This interface defines methods to get the Enum class, Enum constants, and Enum constant names.
+ */
 public interface IEnumInfo {
 
   Class<? extends Enum<?>> getEnumClass();

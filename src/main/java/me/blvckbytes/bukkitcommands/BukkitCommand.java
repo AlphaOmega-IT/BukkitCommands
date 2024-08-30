@@ -1,36 +1,10 @@
-/*
- * MIT License
- *
- * Copyright (c) 2023 BlvckBytes
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
 package me.blvckbytes.bukkitcommands;
 
-import me.blvckbytes.bukkitcommands.error.*;
-import net.kyori.adventure.text.format.Style;
+import me.blvckbytes.bukkitcommands.error.CommandError;
+import me.blvckbytes.bukkitcommands.error.EErrorType;
+import me.blvckbytes.bukkitcommands.error.ErrorContext;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.minimessage.MiniMessage;
-import net.kyori.adventure.text.minimessage.ParsingException;
-import net.kyori.adventure.text.minimessage.internal.parser.ParsingExceptionImpl;
-import net.kyori.adventure.text.minimessage.internal.parser.TokenParser;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
@@ -38,38 +12,57 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * Represents a custom Bukkit command handler.
+ */
 public abstract class BukkitCommand extends Command {
-
-  protected static final List<String> EMPTY_STRING_LIST;
-  private static final Map<Class<? extends Enum<?>>, EnumInfo> enumConstantsCache;
-
-  static {
-    EMPTY_STRING_LIST = Collections.unmodifiableList(new ArrayList<>());
-    enumConstantsCache = new HashMap<>();
-  }
-
-  protected final ICommandConfigProvider configProvider;
-  protected final Logger logger;
-
-  protected BukkitCommand(
-		final ICommandConfigProvider configProvider,
-		final Logger logger
-	) {
-    super(
-      configProvider.getName(),
-      configProvider.getDescription(),
-      configProvider.getUsage(),
-      configProvider.getAliases()
-    );
-
-    this.configProvider = configProvider;
-    this.logger = logger;
-  }
+    
+    /**
+     * List of empty strings.
+     */
+    protected static List<String> EMPTY_STRING_LIST;
+    
+    /**
+     * Cache for enum constants.
+     */
+    private static Map<Class<? extends Enum<?>>, EnumInfo> enumConstantsCache;
+    
+    /**
+     * Configuration provider for the command.
+     */
+    protected final ICommandConfigProvider configProvider;
+    
+    /**
+     * Logger for logging messages.
+     */
+    protected final Logger logger;
+    
+    /**
+     * Constructs a new BukkitCommand with the provided configuration provider and logger.
+     * @param configProvider The configuration provider for the command.
+     * @param logger The logger for logging messages.
+     */
+    protected BukkitCommand(
+        final ICommandConfigProvider configProvider,
+        final Logger logger
+    ) {
+        super(
+            configProvider.getName(),
+            configProvider.getDescription(),
+            configProvider.getUsage(),
+            configProvider.getAliases()
+        );
+        
+        this.configProvider = configProvider;
+        this.logger = logger;
+    }
 
   //=========================================================================//
   //                            Abstract Handlers                            //
@@ -245,20 +238,29 @@ public abstract class BukkitCommand extends Command {
 
     return args[argumentIndex];
   }
-
-  private <T> T executeAndHandleCommandErrors(Supplier<T> executable, T returnValueOnError, CommandSender sender, String alias, String[] args) {
-    try {
-      return executable.get();
-    } catch (CommandError commandError) {
-      handleError(commandError, sender, alias, args);
-      return returnValueOnError;
-    } catch (Exception exception) {
-      this.logger.log(Level.SEVERE, exception, () -> "An error occurred while executing a command");
-      ErrorContext context = new ErrorContext(sender, alias, args, null);
-      sender.sendMessage(configProvider.getInternalErrorMessage(context));
-      return returnValueOnError;
+    
+    /**
+     * Executes the command and handles any command errors.
+     * @param executable The command execution logic.
+     * @param returnValueOnError The value to return in case of an error.
+     * @param sender The command sender.
+     * @param alias The command alias.
+     * @param args The command arguments.
+     * @return The result of the command execution.
+     */
+    private <T> T executeAndHandleCommandErrors(Supplier<T> executable, T returnValueOnError, CommandSender sender, String alias, String[] args) {
+        try {
+            return executable.get();
+        } catch (CommandError commandError) {
+            handleError(commandError, sender, alias, args);
+            return returnValueOnError;
+        } catch (Exception exception) {
+            this.logger.log(Level.SEVERE, exception, () -> "An error occurred while executing a command");
+            ErrorContext context = new ErrorContext(sender, alias, args, null);
+            sender.sendMessage(configProvider.getInternalErrorMessage(context));
+            return returnValueOnError;
+        }
     }
-  }
 
   private void handleError(CommandError error, CommandSender sender, String alias, String[] args) {
     ErrorContext context = new ErrorContext(sender, alias, args, error.argumentIndex);
@@ -275,6 +277,7 @@ public abstract class BukkitCommand extends Command {
 			);
 			case MISSING_ARGUMENT -> configProvider.getMissingArgumentMessage(context);
 			case NOT_A_PLAYER -> configProvider.getNotAPlayerMessage(context);
+            case NOT_A_CONSOLE -> configProvider.getNotAConsoleMessage(context);
 			case PLAYER_UNKNOWN -> configProvider.getPlayerUnknownMessage(context);
 			case PLAYER_NOT_ONLINE -> configProvider.getPlayerNotOnlineMessage(context);
 		};

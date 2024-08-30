@@ -62,7 +62,7 @@ public abstract class ACommandSection implements IConfigSection, ICommandConfigP
   }
 
   @Override
-  public @Nullable Object defaultFor(Field field) throws Exception {
+  public @Nullable Object defaultFor(Field field) {
     if (field.getName().equals("name"))
       return this.defaultCommandName;
 
@@ -144,6 +144,11 @@ public abstract class ACommandSection implements IConfigSection, ICommandConfigP
   @Override
   public String getNotAPlayerMessage(ErrorContext errorContext) {
     return errorMessages.getNotAPlayer().asScalar(ScalarType.STRING, getErrorContextEnvironment(errorContext));
+  }
+  
+  @Override
+  public String getNotAConsoleMessage(ErrorContext errorContext) {
+    return errorMessages.getNotAConsole().asScalar(ScalarType.STRING, getErrorContextEnvironment(errorContext));
   }
 
   @Override
