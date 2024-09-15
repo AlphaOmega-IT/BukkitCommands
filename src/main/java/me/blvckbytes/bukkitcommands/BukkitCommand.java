@@ -12,9 +12,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -27,13 +25,18 @@ public abstract class BukkitCommand extends Command {
     /**
      * List of empty strings.
      */
-    protected static List<String> EMPTY_STRING_LIST;
+    protected static final List<String> EMPTY_STRING_LIST;
     
     /**
      * Cache for enum constants.
      */
-    private static Map<Class<? extends Enum<?>>, EnumInfo> enumConstantsCache;
-    
+    private static final Map<Class<? extends Enum<?>>, EnumInfo> enumConstantsCache;
+	
+	static {
+		EMPTY_STRING_LIST = Collections.unmodifiableList(new ArrayList<>());
+		enumConstantsCache = new HashMap<>();
+	}
+	
     /**
      * Configuration provider for the command.
      */
@@ -277,7 +280,7 @@ public abstract class BukkitCommand extends Command {
 			);
 			case MISSING_ARGUMENT -> configProvider.getMissingArgumentMessage(context);
 			case NOT_A_PLAYER -> configProvider.getNotAPlayerMessage(context);
-            case NOT_A_CONSOLE -> configProvider.getNotAConsoleMessage(context);
+			case NOT_A_CONSOLE -> configProvider.getNotAConsoleMessage(context);
 			case PLAYER_UNKNOWN -> configProvider.getPlayerUnknownMessage(context);
 			case PLAYER_NOT_ONLINE -> configProvider.getPlayerNotOnlineMessage(context);
 		};

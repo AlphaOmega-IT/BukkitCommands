@@ -26,6 +26,8 @@ package me.blvckbytes.bukkitcommands.config;
 
 import me.blvckbytes.bbconfigmapper.sections.IConfigSection;
 import me.blvckbytes.bukkitevaluable.BukkitEvaluable;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Field;
@@ -49,7 +51,7 @@ public class CommandErrorMessagesSection implements IConfigSection {
   public @Nullable Object defaultFor(Field field) throws Exception {
     if (field.getType() == BukkitEvaluable.class)
       return BukkitEvaluable.of(
-          "<dark_red>ERROR:</dark_red> <red>Unconfigured message for field:</red> <gray>" + field.getName() + "</gray>"
+	      MiniMessage.miniMessage().deserialize("<dark_red>ERROR:</dark_red> <red>Unconfigured message for field:</red> <gray>" + field.getName() + "</gray>")
       );
     return IConfigSection.super.defaultFor(field);
   }

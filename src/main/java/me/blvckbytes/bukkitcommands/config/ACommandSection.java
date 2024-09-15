@@ -151,7 +151,7 @@ public abstract class ACommandSection implements IConfigSection, ICommandConfigP
     return errorMessages.getNotAConsole().asScalar(ScalarType.STRING, getErrorContextEnvironment(errorContext));
   }
 
-  @Override
+	@Override
   public String getPlayerUnknownMessage(ErrorContext errorContext) {
     return errorMessages.getPlayerUnknown().asScalar(ScalarType.STRING, getErrorContextEnvironment(errorContext));
   }
